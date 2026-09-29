@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Custo de Vida</title>
+  <style>
+    :root {
+      --bg0: #070b14;
+      --bg1: #0e1628;
+      --card: rgba(16, 26, 48, 0.72);
+      --line: rgba(148, 180, 255, 0.14);
+      --text: #eef3ff;
+      --muted: #93a0c2;
+      --income: #3ee0b0;
+      --moradia: #6ea8ff;
+      --util: #7dd3fc;
+      --food: #fbbf24;
+      --debt: #fb7185;
+      --ok: #34d399;
+      --warn: #f59e0b;
+      --bad: #f43f5e;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg0);
+      color: var(--text);
+      font-family: "Segoe UI", Inter, system-ui, sans-serif;
+    }
+
+    body {
+      overflow-x: hidden;
+      background:
+        radial-gradient(1200px 700px at 8% -10%, rgba(62, 224, 176, 0.16), transparent 50%),
+        radial-gradient(900px 600px at 100% 0%, rgba(110, 168, 255, 0.18), transparent 46%),
+        radial-gradient(700px 500px at 70% 110%, rgba(251, 113, 133, 0.12), transparent 50%),
+        var(--bg0);
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 28px auto 48px;
+    }
+
+    header.hero {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: flex-end;
+      margin-bottom: 26px;
+    }
+
+    .eyebrow {
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-size: 11px;
+      color: var(--income);
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.05;
+      font-weight: 750;
+    }
+
+    h1 span {
+      display: block;
+      color: #b8c7ef;
+      font-weight: 500;
+      font-size: 0.42em;
+      margin-top: 8px;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+
+    .panel { padding: 22px; }
+
+    .panel h2 {
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .slider-block {
+      padding: 14px 14px 16px;
+      border: 1px solid transparent;
+      border-radius: 18px;
+      margin-bottom: 10px;
+      background: rgba(255,255,255,0.02);
+      transition: border-color .2s, background .2s;
+    }
+
+    .slider-block:hover {
+      border-color: var(--line);
+      background: rgba(255,255,255,0.035);
+    }
+
+    .slider-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 650;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    .value {
+      font-variant-numeric: tabular-nums;
+      font-weight: 750;
+      font-size: 18px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #1b2744;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #fff;
+      border: 4px solid var(--thumb);
+      box-shadow: 0 6px 16px rgba(0,0,0,.35);
+      cursor: grab;
+      transition: transform .12s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active {
+      transform: scale(1.12);
+      cursor: grabbing;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #fff;
+      border: 4px solid var(--thumb);
+      box-shadow: 0 6px 16px rgba(0,0,0,.35);
+      cursor: grab;
+    }
+
+    .range-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 7px;
+      color: #6d7ca3;
+      font-size: 11px;
+    }
+
+    .income { --thumb: var(--income); }
+    .moradia { --thumb: var(--moradia); }
+    .util { --thumb: var(--util); }
+    .food { --thumb: var(--food); }
+    .debt { --thumb: var(--debt); }
+
+    .fill-income { background: linear-gradient(90deg, var(--income), #1b2744) !important; }
+    .fill-moradia { background: linear-gradient(90deg, var(--moradia), #1b2744) !important; }
+    .fill-util { background: linear-gradient(90deg, var(--util), #1b2744) !important; }
+    .fill-food { background: linear-gradient(90deg, var(--food), #1b2744) !important; }
+    .fill-debt { background: linear-gradient(90deg, var(--debt), #1b2744) !important; }
+
+    .report { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+
+    .hero-balance {
+      padding: 22px;
+      border-radius: 20px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.05), transparent 40%),
+        rgba(8, 14, 28, 0.65);
+      border: 1px solid var(--line);
+    }
+
+    .hero-balance small {
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+
+    .hero-balance strong {
+      display: block;
+      margin-top: 8px;
+      font-size: clamp(34px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .status {
+      display: inline-flex;
+      margin-top: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .ok { background: rgba(52, 211, 153, 0.14); color: var(--ok); }
+    .warn { background: rgba(245, 158, 11, 0.14); color: var(--warn); }
+    .bad { background: rgba(244, 63, 94, 0.16); color: #fda4af; }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .donut-wrap {
+      position: relative;
+      width: 150px;
+      height: 150px;
+    }
+
+    .donut-wrap svg { width: 150px; height: 150px; transform: rotate(-90deg); }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-content: center;
+      text-align: center;
+    }
+
+    .donut-center b { font-size: 18px; }
+    .donut-center span { color: var(--muted); font-size: 11px; }
+
+    .legend { display: grid; gap: 8px; }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 10px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+      color: #c9d4f0;
+    }
+
+    .bar {
+      height: 6px;
+      background: #1b2744;
+      border-radius: 99px;
+      overflow: hidden;
+      grid-column: 2 / 4;
+    }
+
+    .bar > i {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      transition: width .25s ease;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .kpi {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+    }
+
+    .kpi span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .kpi b {
+      font-size: 18px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tips {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(110, 168, 255, 0.08);
+      border: 1px solid rgba(110, 168, 255, 0.18);
+      color: #d5e3ff;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .vale-note {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.22);
+      color: #f8e7b0;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .vale-note strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--food);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    footer {
+      margin-top: 14px;
+      color: #6d7ca3;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (max-width: 860px) {
+      .grid, .chart-row, header.hero { grid-template-columns: 1fr; display: grid; }
+      header.hero { align-items: start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">Planejamento mensal</div>
+        <h1>
+          Custo de Vida
+          <span>Arraste as bolinhas. Os totais e o que sobra atualizam sozinhos.</span>
+        </h1>
+      </div>
+      <div class="badge">Tudo em tempo real · sem digitar números</div>
+    </header>
+
+    <div class="grid">
+      <section class="card panel">
+        <h2>Sua renda e custos</h2>
+
+        <div class="slider-block income">
+          <div class="slider-head">
+            <div class="label"><i class="dot" style="color:var(--income);background:var(--income)"></i> Renda mensal</div>
+            <div class="value" id="v-renda">R$ 0</div>
+          </div>
+          <input id="renda" type="range" min="0" max="20000" step="50" value="4500" />
+          <div class="range-meta"><span>R$ 0</span><span>R$ 20.000</span></div>
+        </div>
+
+        <div class="slider-block moradia">
+          <div class="slider-head">
+            <div class="label"><i class="dot" style="color:var(--moradia);background:var(--moradia)"></i> Moradia</div>
+            <div class="value" id="v-moradia">R$ 0</div>
+          </div>
+          <input id="moradia" type="range" min="0" max="8000" step="50" value="1200" />
+          <div class="range-meta"><span>R$ 0</span><span>R$ 8.000</span></div>
+        </div>
+
+        <div class="slider-block util">
+          <div class="slider-head">
+            <div class="label"><i class="dot" style="color:var(--util);background:var(--util)"></i> Água, luz e telefone</div>
+            <div class="value" id="v-util">R$ 0</div>
+          </div>
+          <input id="util" type="range" min="0" max="2000" step="10" value="350" />
+          <div class="range-meta"><span>R$ 0</span><span>R$ 2.000</span></div>
+        </div>
+
+        <div class="slider-block food">
+          <div class="slider-head">
+            <div class="label"><i class="dot" style="color:var(--food);background:var(--food)"></i> Alimentação</div>
+            <div class="value" id="v-food">R$ 0</div>
+          </div>
+          <input id="food" type="range" min="0" max="4000" step="25" value="800" />
+          <div class="range-meta"><span>R$ 0</span><span>R$ 4.000</span></div>
+        </div>
+
+        <div class="slider-block debt">
+          <div class="slider-head">
+            <div class="label"><i class="dot" style="color:var(--debt);background:var(--debt)"></i> Dívidas</div>
+            <div class="value" id="v-debt">R$ 0</div>
+          </div>
+          <input id="debt" type="range" min="0" max="6000" step="25" value="400" />
+          <div class="range-meta"><span>R$ 0</span><span>R$ 6.000</span></div>
+        </div>
+      </section>
+
+      <aside class="card report">
+        <div class="hero-balance">
+          <small>O que sobra no mês para gastar</small>
+          <strong id="leftover">R$ 0</strong>
+          <div id="status" class="status ok">Saldo positivo</div>
+        </div>
+
+        <div class="vale-note">
+          <strong>Vale-alimentação e vale-refeição</strong>
+          Some os dois na renda mensal. O desconto na alimentação é automático: não abata o vale outra vez no gasto de comida.
+        </div>
+
+        <div class="chart-row">
+          <div class="donut-wrap">
+            <svg viewBox="0 0 36 36" aria-hidden="true">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#1b2744" stroke-width="5"></circle>
+              <circle id="arc-moradia" cx="18" cy="18" r="14" fill="none" stroke="#6ea8ff" stroke-width="5" stroke-dasharray="0 88" stroke-linecap="round"></circle>
+              <circle id="arc-util" cx="18" cy="18" r="14" fill="none" stroke="#7dd3fc" stroke-width="5" stroke-dasharray="0 88"></circle>
+              <circle id="arc-food" cx="18" cy="18" r="14" fill="none" stroke="#fbbf24" stroke-width="5" stroke-dasharray="0 88"></circle>
+              <circle id="arc-debt" cx="18" cy="18" r="14" fill="none" stroke="#fb7185" stroke-width="5" stroke-dasharray="0 88"></circle>
+            </svg>
+            <div class="donut-center">
+              <b id="pct">0%</b>
+              <span>da renda</span>
+            </div>
+          </div>
+          <div class="legend">
+            <div class="legend-item">
+              <i class="dot" style="background:var(--moradia)"></i>
+              <span>Moradia</span>
+              <b id="p-moradia">0%</b>
+              <div class="bar"><i id="b-moradia" style="background:var(--moradia)"></i></div>
+            </div>
+            <div class="legend-item">
+              <i class="dot" style="background:var(--util)"></i>
+              <span>Água, luz e telefone</span>
+              <b id="p-util">0%</b>
+              <div class="bar"><i id="b-util" style="background:var(--util)"></i></div>
+            </div>
+            <div class="legend-item">
+              <i class="dot" style="background:var(--food)"></i>
+              <span>Alimentação</span>
+              <b id="p-food">0%</b>
+              <div class="bar"><i id="b-food" style="background:var(--food)"></i></div>
+            </div>
+            <div class="legend-item">
+              <i class="dot" style="background:var(--debt)"></i>
+              <span>Dívidas</span>
+              <b id="p-debt">0%</b>
+              <div class="bar"><i id="b-debt" style="background:var(--debt)"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi"><span>Total de custos</span><b id="total-cost">R$ 0</b></div>
+          <div class="kpi"><span>Por dia livre</span><b id="per-day">R$ 0</b></div>
+          <div class="kpi"><span>Por semana livre</span><b id="per-week">R$ 0</b></div>
+          <div class="kpi"><span>Comprometimento</span><b id="commit">0%</b></div>
+        </div>
+
+        <div class="tips" id="tip">Ajuste os sliders para ver o relatório.</div>
+      </aside>
+    </div>
+    <footer>Relatório simples e automático · valores em reais · atualiza enquanto você arrasta</footer>
+  </div>
+
+  <script>
+    const money = (n) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    const ids = ["renda", "moradia", "util", "food", "debt"];
+    const CIRC = 2 * Math.PI * 14;
+
+    const fillMap = {
+      renda: "fill-income",
+      moradia: "fill-moradia",
+      util: "fill-util",
+      food: "fill-food",
+      debt: "fill-debt"
+    };
+
+    function paintTrack(el) {
+      const min = Number(el.min);
+      const max = Number(el.max);
+      const val = Number(el.value);
+      const pct = ((val - min) / (max - min)) * 100;
+      const cls = [...el.classList].find(c => c.startsWith("fill-"));
+      if (cls) el.classList.remove(cls);
+      el.classList.add(fillMap[el.id]);
+      el.style.background = `linear-gradient(90deg, var(--thumb) ${pct}%, #1b2744 ${pct}%)`;
+    }
+
+    function setArc(id, offset, size) {
+      const el = document.getElementById(id);
+      el.setAttribute("stroke-dasharray", `${size} ${CIRC}`);
+      el.setAttribute("stroke-dashoffset", `-${offset}`);
+    }
+
+    function calc() {
+      const renda = Number(rendaEl.value);
+      const moradia = Number(moradiaEl.value);
+      const util = Number(utilEl.value);
+      const food = Number(foodEl.value);
+      const debt = Number(debtEl.value);
+      const costs = moradia + util + food + debt;
+      const leftover = renda - costs;
+      const commit = renda > 0 ? (costs / renda) * 100 : (costs > 0 ? 100 : 0);
+
+      document.getElementById("v-renda").textContent = money(renda);
+      document.getElementById("v-moradia").textContent = money(moradia);
+      document.getElementById("v-util").textContent = money(util);
+      document.getElementById("v-food").textContent = money(food);
+      document.getElementById("v-debt").textContent = money(debt);
+      document.getElementById("leftover").textContent = money(leftover);
+      document.getElementById("total-cost").textContent = money(costs);
+      document.getElementById("per-day").textContent = money(Math.max(leftover, 0) / 30);
+      document.getElementById("per-week").textContent = money(Math.max(leftover, 0) / 4.3);
+      document.getElementById("commit").textContent = `${commit.toFixed(0)}%`;
+      document.getElementById("pct").textContent = `${Math.min(commit, 999).toFixed(0)}%`;
+
+      const status = document.getElementById("status");
+      const tip = document.getElementById("tip");
+      status.className = "status";
+      if (leftover < 0) {
+        status.classList.add("bad");
+        status.textContent = "Gastos acima da renda";
+        tip.textContent = "Os custos passaram da renda. Reduza dívidas ou moradia para voltar ao positivo.";
+      } else if (commit >= 80) {
+        status.classList.add("warn");
+        status.textContent = "Folga apertada";
+        tip.textContent = "Mais de 80% da renda está comprometida. O que sobra deve ser usado com cuidado.";
+      } else {
+        status.classList.add("ok");
+        status.textContent = "Saldo positivo";
+        tip.textContent = leftover > 0
+          ? `Depois das contas, sobram ${money(leftover)} no mês para lazer, reserva ou imprevistos.`
+          : "Ajuste a renda e os custos para ver o que sobra no mês.";
+      }
+
+      const parts = [
+        ["moradia", moradia],
+        ["util", util],
+        ["food", food],
+        ["debt", debt]
+      ];
+      const base = costs || 1;
+      let offset = 0;
+      parts.forEach(([key, val]) => {
+        const share = val / base;
+        const size = (val / base) * CIRC;
+        setArc(`arc-${key}`, offset, costs ? size : 0);
+        offset += size;
+        document.getElementById(`p-${key}`).textContent = `${(share * 100).toFixed(0)}%`;
+        document.getElementById(`b-${key}`).style.width = `${share * 100}%`;
+      });
+    }
+
+    const rendaEl = document.getElementById("renda");
+    const moradiaEl = document.getElementById("moradia");
+    const utilEl = document.getElementById("util");
+    const foodEl = document.getElementById("food");
+    const debtEl = document.getElementById("debt");
+
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      const update = () => { paintTrack(el); calc(); };
+      el.addEventListener("input", update);
+      paintTrack(el);
+    });
+
+    calc();
+  </script>
+</body>
+</html>
